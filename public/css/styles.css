@@ -1,0 +1,973 @@
+/* ==========================================================================
+   comma 3X Anticipatory Confidence & Torque Limit System - Design Tokens & Styles
+   Strict Flat Qt/QML Aesthetic · High Contrast · Windshield Peripheral Ergonomics
+   ========================================================================== */
+
+:root {
+  /* Colors */
+  --bg-core: #090a0d;
+  --bg-surface: #12141a;
+  --bg-card: #181b22;
+  --bg-card-hover: #1f232c;
+  --border-subtle: #242933;
+  --border-active: #3b4252;
+
+  /* comma brand & openpilot status colors */
+  --comma-green: #00E676;       /* Class 1: Reliable */
+  --comma-cyan: #00E5FF;        /* Chill mode / path */
+  --comma-amber: #FFB300;       /* Class 2: Advisory / Torque saturation */
+  --comma-red: #FF1744;         /* Class 3: Imminent Disengagement */
+  --comma-purple: #D500F9;      /* Experimental mode */
+
+  /* Text & Accents */
+  --text-primary: #FFFFFF;
+  --text-secondary: #9E9E9E;
+  --text-muted: #616161;
+
+  /* Typography */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* comma 3X Bezel & Aspect */
+  --bezel-color: #050608;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.dark-theme {
+  background-color: var(--bg-core);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Top Header & Navigation
+   ========================================================================== */
+.app-header {
+  height: 60px;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  font-size: 26px;
+  font-weight: 900;
+  display: flex;
+  align-items: baseline;
+  user-select: none;
+}
+
+.comma-comma {
+  color: var(--comma-green);
+  font-size: 34px;
+  line-height: 0;
+}
+
+.comma-ai {
+  color: #FFFFFF;
+  letter-spacing: -1px;
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-title h1 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.brand-title h1 span {
+  color: var(--comma-cyan);
+}
+
+.badge {
+  background-color: var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.success {
+  background-color: rgba(0, 230, 118, 0.15);
+  color: var(--comma-green);
+  border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+/* Mode Switcher Tabs */
+.view-mode-tabs {
+  display: flex;
+  background-color: var(--bg-core);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: #FFFFFF;
+}
+
+.tab-btn.active {
+  background-color: var(--bg-surface);
+  color: var(--comma-cyan);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-active);
+}
+
+.connection-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--comma-green);
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dot.live {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--comma-green);
+  box-shadow: 0 0 8px var(--comma-green);
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* ==========================================================================
+   Main Layout Container (Split, HUD Only, Connect Only)
+   ========================================================================== */
+.main-container {
+  flex: 1;
+  display: grid;
+  padding: 16px;
+  gap: 16px;
+  transition: all 0.3s ease;
+}
+
+.main-container.split-active {
+  grid-template-columns: 1.15fr 0.85fr;
+}
+
+.main-container.hud-only {
+  grid-template-columns: 1fr;
+  align-items: center;
+  justify-items: center;
+}
+.main-container.hud-only .connect-dashboard-section {
+  display: none;
+}
+.main-container.hud-only .device-bezel {
+  max-width: 1120px;
+}
+
+.main-container.connect-only {
+  grid-template-columns: 1fr;
+}
+.main-container.connect-only .device-viewport-section {
+  display: none;
+}
+
+/* ==========================================================================
+   comma 3X Windshield Mount Viewport (2:1 Aspect Ratio)
+   ========================================================================== */
+.device-viewport-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.device-bezel {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  aspect-ratio: 2 / 1;
+  background-color: var(--bezel-color);
+  border: 8px solid #000000;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px #1a1c22;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* DIRECTIONAL PERIPHERAL TORQUE SATURATION HALOS */
+.peripheral-halo {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease-out, background 0.25s ease-out, width 0.25s ease-out;
+}
+
+.peripheral-halo.halo-left {
+  left: 0;
+  background: linear-gradient(to right, rgba(255, 179, 0, 0.85), transparent);
+  border-left: 4px solid var(--comma-amber);
+}
+
+.peripheral-halo.halo-right {
+  right: 0;
+  background: linear-gradient(to left, rgba(255, 179, 0, 0.85), transparent);
+  border-right: 4px solid var(--comma-amber);
+}
+
+.peripheral-halo.imminent {
+  background: linear-gradient(to right, rgba(255, 23, 68, 0.9), transparent) !important;
+  border-color: var(--comma-red) !important;
+  width: 48px;
+  animation: pulseHalo 0.8s infinite alternate ease-in-out;
+}
+.peripheral-halo.halo-right.imminent {
+  background: linear-gradient(to left, rgba(255, 23, 68, 0.9), transparent) !important;
+}
+
+@keyframes pulseHalo {
+  from { opacity: 0.6; }
+  to { opacity: 1.0; }
+}
+
+.peripheral-halo-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to bottom, rgba(255, 179, 0, 0.7), transparent);
+  transition: opacity 0.3s ease;
+}
+
+.screen-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #050508;
+  overflow: hidden;
+}
+
+#roadCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ==========================================================================
+   Flat Qt UI Overlay (openpilot Authenticity)
+   ========================================================================== */
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px 20px;
+  z-index: 30;
+}
+
+/* Left Cluster: MAX Speed + Speedometer */
+.hud-cluster-left {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.max-speed-pill {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background-color: #212121;
+  border: 2px solid #424242;
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  transition: all 0.2s ease;
+}
+
+.max-speed-pill.engaged {
+  background-color: rgba(0, 230, 118, 0.15);
+  border-color: var(--comma-green);
+  color: var(--comma-green);
+}
+
+.pill-label {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.pill-value {
+  font-size: 18px;
+}
+
+.current-speed-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.speed-number {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -2px;
+  color: #FFFFFF;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.8);
+}
+
+.speed-unit {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.steer-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--comma-green);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 230, 118, 0.4);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Top HUD Bar */
+.hud-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+.confidence-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1.5px solid var(--comma-green);
+  color: var(--comma-green);
+  transition: all 0.25s ease;
+}
+
+.confidence-pill.class-1 {
+  border-color: var(--comma-green);
+  color: var(--comma-green);
+}
+
+.confidence-pill.class-2 {
+  border-color: var(--comma-amber);
+  color: var(--comma-amber);
+  background: rgba(255, 179, 0, 0.12);
+}
+
+.confidence-pill.class-3 {
+  border-color: var(--comma-red);
+  color: var(--comma-red);
+  background: rgba(255, 23, 68, 0.2);
+  animation: pulseAlert 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes pulseAlert {
+  from { transform: scale(1.0); }
+  to { transform: scale(1.04); }
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Actuation Limits Matrix */
+.limits-matrix {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.limit-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 8px;
+  border-right: 1px solid var(--border-subtle);
+}
+.limit-pill:last-child {
+  border-right: none;
+}
+
+.limit-name {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.limit-bar-mini {
+  width: 70px;
+  height: 4px;
+  background: #2a2a2e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.limit-bar-fill {
+  height: 100%;
+  background: var(--comma-cyan);
+  transition: width 0.1s linear, background 0.2s ease;
+}
+
+.limit-val {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.limit-val.high {
+  color: var(--comma-green);
+}
+.limit-val.warning {
+  color: var(--comma-amber);
+}
+.limit-val.danger {
+  color: var(--comma-red);
+}
+
+/* Right Cluster: Driver Alert Dial (DAD 2.0 Horizon) */
+.hud-cluster-right {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.dad-gauge {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dad-ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+}
+.dad-ring.ring-red {
+  inset: 0;
+  border-width: 1.5px;
+  border-color: rgba(255, 23, 68, 0.4);
+}
+.dad-ring.ring-yellow {
+  inset: 6px;
+  border-width: 1.5px;
+  border-color: rgba(255, 179, 0, 0.5);
+}
+.dad-ring.ring-cyan {
+  inset: 12px;
+  border-width: 1.5px;
+  border-color: rgba(0, 229, 255, 0.6);
+}
+
+.dad-ball {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--comma-green);
+  box-shadow: 0 0 8px var(--comma-green);
+  transition: transform 0.1s linear, background-color 0.2s ease;
+}
+
+.dad-caption {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.dad-headroom {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--comma-green);
+}
+
+/* Anticipatory Bottom Alert Banner */
+.anticipatory-alert-banner {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  opacity: 0;
+  background: rgba(18, 20, 26, 0.95);
+  border: 2px solid var(--comma-amber);
+  border-radius: 8px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+  transition: all 0.25s ease-out;
+  pointer-events: auto;
+}
+
+.anticipatory-alert-banner.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.anticipatory-alert-banner.critical {
+  border-color: var(--comma-red);
+}
+
+.alert-icon {
+  font-size: 20px;
+}
+
+.alert-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.alert-text strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--comma-amber);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.anticipatory-alert-banner.critical .alert-text strong {
+  color: var(--comma-red);
+}
+
+.alert-text span {
+  font-size: 13px;
+  color: #FFFFFF;
+}
+
+.windshield-frame-caption {
+  background: #000000;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  text-align: center;
+  border-top: 1px solid #1a1c22;
+}
+
+/* ==========================================================================
+   Right Panel: comma connect Telemetry & Control Deck
+   ========================================================================== */
+.connect-dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+  padding-right: 6px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.card-header h2 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #FFFFFF;
+}
+
+.card-header .subtext {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Scenario Cards */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.scenario-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.scenario-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-active);
+}
+
+.scenario-btn.active {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--comma-cyan);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+}
+
+.sc-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.sc-desc {
+  font-size: 10px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+/* Vehicle Selector */
+.vehicle-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vehicle-selector-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.styled-select {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+.styled-select:focus {
+  border-color: var(--comma-cyan);
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.spec-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.spec-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--comma-cyan);
+}
+
+.spec-hint {
+  font-size: 8px;
+  color: var(--text-muted);
+}
+
+.vehicle-note-box {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  background: rgba(0, 0, 0, 0.4);
+  border-left: 3px solid var(--comma-cyan);
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Telemetry Charts */
+.chart-container {
+  width: 100%;
+  height: 180px;
+  background: #0d0f14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+#telemetryChart {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.telemetry-readouts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.readout-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.r-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.r-val {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+/* Event Logs */
+.event-stream {
+  height: 130px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #0d0f14;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.log-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.log-entry.system {
+  color: var(--text-secondary);
+}
+
+.log-entry.prevented {
+  background: rgba(0, 230, 118, 0.12);
+  color: var(--comma-green);
+  border-left: 3px solid var(--comma-green);
+}
+
+.log-entry.advisory {
+  background: rgba(255, 179, 0, 0.12);
+  color: var(--comma-amber);
+  border-left: 3px solid var(--comma-amber);
+}
+
+.log-entry.critical {
+  background: rgba(255, 23, 68, 0.18);
+  color: var(--comma-red);
+  border-left: 3px solid var(--comma-red);
+}
+
+.log-time {
+  color: var(--text-muted);
+}
+.log-tag {
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+.app-footer {
+  height: 38px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.footer-link:hover {
+  color: var(--comma-cyan);
+}

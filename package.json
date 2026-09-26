@@ -1,0 +1,23 @@
+{
+  "name": "comma-openpilot-confidence-hud",
+  "version": "1.0.0",
+  "description": "comma 3X Anticipatory Confidence & Torque Limit System - Full Stack openpilot & comma connect Suite",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test.js",
+    "sim": "py src/sim/telemetry_sim.py"
+  },
+  "keywords": [
+    "comma.ai",
+    "openpilot",
+    "comma-connect",
+    "full-stack",
+    "autonomous-driving",
+    "telemetry",
+    "hud"
+  ],
+  "author": "comma.ai Full Stack Candidate",
+  "license": "MIT"
+}

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>comma 3X Anticipatory Confidence & Torque Limit System | openpilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation & Global Controls -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">
+        <span class="comma-comma">,</span><span class="comma-ai">ai</span>
+      </div>
+      <div class="brand-title">
+        <h1>openpilot <span>confidence hud</span></h1>
+        <span class="badge">comma 3X · Qt Flat UI</span>
+      </div>
+    </div>
+
+    <!-- View Mode Selector -->
+    <div class="view-mode-tabs">
+      <button id="tabWindshield" class="tab-btn active" title="comma 3X Windshield Mount Viewport">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 6h16a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2zm0 2v8h16V8H4z"/></svg>
+        comma 3X HUD
+      </button>
+      <button id="tabConnect" class="tab-btn" title="comma connect Telemetry Console">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        comma connect studio
+      </button>
+      <button id="tabSplit" class="tab-btn" title="Split Screen View">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 4h8v16H3V4zm10 0h8v16h-8V4z"/></svg>
+        split view
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <!-- Audio Toggle -->
+      <button id="btnAudioToggle" class="icon-btn" title="Toggle Progressive Harmonic Audio Cues">
+        <span id="audioIcon">🔊</span>
+        <span id="audioLabel">audio on</span>
+      </button>
+
+      <!-- Connection Status Indicator -->
+      <div class="connection-badge" id="connStatus">
+        <span class="dot live"></span>
+        <span id="connLabel">20Hz LIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport Container (Defaults to pure comma 3X Windshield View) -->
+  <main class="main-container hud-only" id="mainContainer">
+    
+    <!-- LEFT: comma 3X Windshield Mounted Display (2:1 Aspect Ratio) -->
+    <section class="device-viewport-section" id="deviceSection">
+      <div class="device-bezel" id="deviceBezel">
+        <!-- Directional Peripheral Torque Saturation Halos -->
+        <div class="peripheral-halo halo-left" id="haloLeft"></div>
+        <div class="peripheral-halo halo-right" id="haloRight"></div>
+        <div class="peripheral-halo-top" id="haloTop"></div>
+
+        <!-- 3X Screen (2160x1080 Scaled) -->
+        <div class="screen-surface" id="screenSurface">
+          <!-- Background 60 FPS Road Canvas -->
+          <canvas id="roadCanvas" width="1080" height="540"></canvas>
+
+          <!-- Flat Qt UI Overlay Elements -->
+          <div class="hud-overlay">
+            
+            <!-- Left HUD Cluster: Set Speed & Speedometer -->
+            <div class="hud-cluster-left">
+              <div class="max-speed-pill engaged" id="maxSpeedPill">
+                <span class="pill-label">MAX</span>
+                <span class="pill-value" id="maxSpeedVal">55</span>
+              </div>
+              <div class="current-speed-display">
+                <span class="speed-number" id="speedNum">52</span>
+                <span class="speed-unit">MPH</span>
+              </div>
+              
+              <!-- Steering Engagement Indicator -->
+              <div class="steer-status-badge engaged" id="steerStatus">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.85.63-3.55 1.69-4.9L12 11.24l6.31-4.14C19.37 8.45 20 10.15 20 12c0 4.41-3.59 8-8 8zm-6.24-9.82C5.28 10.74 5 11.35 5 12h5.5l-4.74-1.82zM12 4.07c1.33 0 2.57.38 3.63 1.04L12 7.5 8.37 5.11C9.43 4.45 10.67 4.07 12 4.07zm6.74 6.11L14 12h5c0-.65-.28-1.26-.76-1.82z"/>
+                </svg>
+                <span>ENGAGED</span>
+              </div>
+            </div>
+
+            <!-- Top HUD Bar: Confidence State & Actuation Pill Matrix -->
+            <div class="hud-top-bar">
+              <!-- Confidence Class Pill -->
+              <div class="confidence-pill class-1" id="confidencePill">
+                <span class="pulse-indicator"></span>
+                <span id="confidenceLabel">CLASS 1 · RELIABLE</span>
+              </div>
+
+              <!-- Actuation Limits Pill Matrix (Steering Torque, Brake Pressure, Acceleration) -->
+              <div class="limits-matrix">
+                <div class="limit-pill" id="pillTorque" title="Steering Wheel EPS Torque Limit Proximity">
+                  <span class="limit-name">EPS TORQUE</span>
+                  <div class="limit-bar-mini">
+                    <div class="limit-bar-fill" id="barTorqueFill" style="width: 25%;"></div>
+                  </div>
+                  <span class="limit-val" id="valTorque">0.6 / 2.4 Nm</span>
+                </div>
+
+                <div class="limit-pill" id="pillBrake" title="Brake Hydraulic Pressure Limit Proximity">
+                  <span class="limit-name">BRAKE PRESS</span>
+                  <div class="limit-bar-mini">
+                    <div class="limit-bar-fill" id="barBrakeFill" style="width: 0%;"></div>
+                  </div>
+                  <span class="limit-val" id="valBrake">0 bar [0%]</span>
+                </div>
+
+                <div class="limit-pill" id="pillAccel" title="Longitudinal Acceleration Headroom">
+                  <span class="limit-name">ACCEL LIMIT</span>
+                  <div class="limit-bar-mini">
+                    <div class="limit-bar-fill" id="barAccelFill" style="width: 32%;"></div>
+                  </div>
+                  <span class="limit-val" id="valAccel">0.7 / 2.0 m/s²</span>
+                </div>
+
+                <div class="limit-pill" id="pillVariance" title="Neural Network Path Variance (modelV2)">
+                  <span class="limit-name">MODEL CONF</span>
+                  <span class="limit-val high" id="valConf">96% (σ² 0.08)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Driver Alert Dial 2.0 (Non-Intrusive Corner Horizon) -->
+            <div class="hud-cluster-right">
+              <div class="dad-gauge" id="dadGauge" title="Driver Alert Dial (G-Force & Confidence)">
+                <div class="dad-ring ring-red"></div>
+                <div class="dad-ring ring-yellow"></div>
+                <div class="dad-ring ring-cyan"></div>
+                <div class="dad-ball" id="dadBall"></div>
+              </div>
+              <span class="dad-caption">HEADROOM</span>
+              <span class="dad-headroom" id="dadHeadroomVal">75%</span>
+            </div>
+
+            <!-- Bottom Anticipatory Alert Banner -->
+            <div class="anticipatory-alert-banner" id="preAlertBanner">
+              <div class="alert-icon">⚠️</div>
+              <div class="alert-text">
+                <strong id="alertHeading">ANTICIPATORY ADVISORY</strong>
+                <span id="alertMessage">Approaching EPS steering torque ceiling (85%). Rest hand on wheel.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Windshield Mount Perspective Guide -->
+        <div class="windshield-frame-caption">
+          <span>comma 3X windshield mount view · 2:1 OLED display · driver peripheral vision active</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: comma connect Telemetry & Control Deck -->
+    <section class="connect-dashboard-section" id="connectSection">
+      
+      <!-- Interactive Scenario Selector -->
+      <div class="card scenario-deck">
+        <div class="card-header">
+          <h2>Driving Scenarios</h2>
+          <span class="subtext">Select scenario to evaluate vehicle limit transitions</span>
+        </div>
+        <div class="scenario-grid" id="scenarioGrid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+      <!-- Vehicle Profile & EPS Limits Switcher -->
+      <div class="card vehicle-card">
+        <div class="card-header">
+          <h2>Vehicle Model & EPS Limits</h2>
+          <span class="badge" id="currentVehBadge">Honda CR-V</span>
+        </div>
+        <div class="vehicle-selector-row">
+          <label for="vehicleSelect">Active Vehicle Calibration:</label>
+          <select id="vehicleSelect" class="styled-select"></select>
+        </div>
+        
+        <div class="specs-grid">
+          <div class="spec-box">
+            <span class="spec-label">EPS Torque Ceiling</span>
+            <span class="spec-val" id="specTorque">2.4 Nm</span>
+            <span class="spec-hint">Strict limit</span>
+          </div>
+          <div class="spec-box">
+            <span class="spec-label">Steering Ratio</span>
+            <span class="spec-val" id="specRatio">15.6 : 1</span>
+            <span class="spec-hint">Gear ratio</span>
+          </div>
+          <div class="spec-box">
+            <span class="spec-label">Max Brake Decel</span>
+            <span class="spec-val" id="specBrake">-3.2 m/s²</span>
+            <span class="spec-hint">75 bar</span>
+          </div>
+          <div class="spec-box">
+            <span class="spec-label">Curb Weight</span>
+            <span class="spec-val" id="specWeight">1610 kg</span>
+            <span class="spec-hint">Vehicle mass</span>
+          </div>
+        </div>
+        <div class="vehicle-note-box" id="vehicleNotes">
+          Notes on EPS saturation behavior.
+        </div>
+      </div>
+
+      <!-- Real-Time CAN Telemetry Live Charts -->
+      <div class="card charts-card">
+        <div class="card-header">
+          <h2>Live CAN Bus Telemetry (20Hz)</h2>
+          <span class="subtext">Real-time torque saturation vs model confidence</span>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="telemetryChart" width="500" height="180"></canvas>
+        </div>
+
+        <div class="telemetry-readouts-grid">
+          <div class="readout-box">
+            <span class="r-label">Torque Saturation</span>
+            <span class="r-val" id="readoutSat">0.0%</span>
+          </div>
+          <div class="readout-box">
+            <span class="r-label">Headroom Margin</span>
+            <span class="r-val" id="readoutHeadroom">100.0%</span>
+          </div>
+          <div class="readout-box">
+            <span class="r-label">Lateral Accel</span>
+            <span class="r-val" id="readoutLat">0.00 m/s²</span>
+          </div>
+          <div class="readout-box">
+            <span class="r-label">Model Variance σ²</span>
+            <span class="r-val" id="readoutVar">0.08</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disengagement Prevention & Event Logs -->
+      <div class="card logs-card">
+        <div class="card-header">
+          <h2>Anticipatory Pre-Alert Event Stream</h2>
+          <span class="badge success" id="savesCounter">0 PREVENTED DISENGAGEMENTS</span>
+        </div>
+        <div class="event-stream" id="eventStream">
+          <!-- Live events populate here -->
+          <div class="log-entry system">
+            <span class="log-time">00:00:00</span>
+            <span class="log-tag">INITIALIZED</span>
+            <span class="log-msg">openpilot anticipatory confidence & torque limit engine active.</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Technical Spec Drawer Button -->
+  <footer class="app-footer">
+    <div class="footer-left">
+      <span>comma.ai full stack openpilot challenge submission</span>
+      <span>·</span>
+      <span>Hardware: comma 3X (2160×1080)</span>
+      <span>·</span>
+      <span>Qt/QML Flat UI Compliant</span>
+    </div>
+    <div class="footer-right">
+      <a href="https://github.com/commaai/openpilot" target="_blank" class="footer-link">openpilot repo</a>
+      <a href="https://connect.comma.ai" target="_blank" class="footer-link">comma connect</a>
+      <a href="https://comma.ai/jobs" target="_blank" class="footer-link">comma jobs</a>
+    </div>
+  </footer>
+
+  <!-- Modular Frontend Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
